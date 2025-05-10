@@ -9,11 +9,9 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "scripts": {
-    "migrate:deploy": "prisma migrate deploy",
-    "build": "npm run migrate:deploy && nest build",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "postinstall": "prisma generate",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
