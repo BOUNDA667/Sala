@@ -8,6 +8,7 @@ import { TagsModule } from './tags/tags.module';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { CommentsController } from './comments/comments.controller';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CommentsController } from './comments/comments.controller';
     TagsModule,
     CommentsModule,
     NotificationsModule,
+    CategoriesModule,
   ],
   controllers: [AppController, CommentsController],
   providers: [AppService],

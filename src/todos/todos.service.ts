@@ -27,14 +27,25 @@ export class TodosService {
         data: {
           title: payload.title,
           description: payload.description,
-          completed: payload.completed,
+          completed: payload.completed ?? false,
           priority: payload.priority,
-          dueDate: payload.dueDate,
-          reminderDate: payload.reminderDate,
-          // userId: payload.userId,
-          user: { connect: { id: payload.userId } },
+          dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
+          reminderDate: payload.reminderDate
+            ? new Date(payload.reminderDate)
+            : undefined,
+          categoryId: payload.categoryId,
+          // Convertir la chaîne 'HH:mm' (ou 'HH:mm:ss') en Date (01/01/1970 + heure)
+          dueTime: payload.dueTime,
+          repeatAfterCompletion: payload.repeatAfterCompletion,
+          userId: payload.userId,
+          // si tu veux gérer des tags/comments
+          tags: payload.tagsIds?.length
+            ? { connect: payload.tagsIds.map((id) => ({ id })) }
+            : undefined,
+          comments: payload.commentsIds?.length
+            ? { connect: payload.commentsIds.map((id) => ({ id })) }
+            : undefined,
         },
-        // data: payload,
       })) as unknown as ToDo;
 
       return todo;
@@ -112,6 +123,9 @@ export class TodosService {
   async getAllToDoByUserId(userId: number): Promise<ToDo[]> {
     const todos: ToDo[] = (await this.prisma.todo.findMany({
       where: { userId: userId },
+      include: {
+        category: true,
+      },
     })) as unknown as ToDo[];
     return todos;
   }

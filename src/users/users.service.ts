@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma.service';
@@ -9,6 +9,9 @@ import { AuthResponse } from './user';
 
 @Injectable()
 export class UsersService {
+  //Instancie un Logger avec le nom de ton service
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -18,6 +21,8 @@ export class UsersService {
   async login(
     payload: LoginUserDTO,
   ): Promise<{ user: AuthResponse; token: string }> {
+    this.logger.log(`Tentative de login pour l'email: ${payload.email}`);
+
     // Recherche de l'utilisateur par email
     const user = await this.prisma.user.findUnique({
       where: { email: payload.email },

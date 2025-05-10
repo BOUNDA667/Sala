@@ -1,10 +1,17 @@
+// create-todo.dto.ts
+
 import {
   IsBoolean,
-  IsDate,
+  IsDateString,
+  IsEnum,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsArray,
+  ArrayNotEmpty,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { Priority } from './priority.enum';
 
 export class CreateTodoDto {
@@ -20,18 +27,43 @@ export class CreateTodoDto {
   @IsOptional()
   completed?: boolean;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsEnum(Priority)
   priority: Priority;
 
-  @IsNotEmpty()
+  @IsInt()
+  @Type(() => Number)
   userId: number;
 
   @IsOptional()
-  @IsDate()
-  dueDate?: Date;
+  @IsDateString()
+  dueDate?: string;
 
   @IsOptional()
-  @IsDate()
-  reminderDate?: Date;
+  @IsDateString()
+  reminderDate?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  repeatAfterCompletion?: boolean;
+
+  @IsOptional()
+  dueTime?: string; // Format ISO 8601 ou 'HH:mm:ss'
+
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  @Type(() => Number)
+  tagsIds?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  @Type(() => Number)
+  commentsIds?: number[];
+
+  @IsInt()
+  @Type(() => Number)
+  categoryId: number;
 }

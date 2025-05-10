@@ -37,6 +37,9 @@ model User {
   todos           Todo[]
   comments        Comment[]
   notifications   Notification[]
+
+  @@index([subscriptionId])
+  Category Category[]
 }
 
 /// Le modèle Subscription gère les informations relatives aux abonnements premium.
@@ -55,26 +58,41 @@ model Subscription {
 /// Le modèle Todo représente une tâche à réaliser.
 /// Il inclut des informations sur le titre, la description, le statut, la priorité et des dates associées.
 model Todo {
-  id          Int         @id @default(autoincrement())
-  title       String
-  description String?
-  completed   Boolean     @default(false)
-  priority    Priority    @default(MEDIUM)   // Priorité de la tâche
-  dueDate     DateTime?                      // Date limite de réalisation
-  reminderDate    DateTime?                      // Date pour envoyer un rappel
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id                     Int         @id @default(autoincrement())
+  title                  String
+  description            String?
+  completed              Boolean     @default(false)
+  priority               Priority    @default(MEDIUM)   // Priorité de la tâche
+  dueDate                DateTime?                      // Date limite de réalisation
+  dueTime                String?                      // Heure limite de réalisation                
+  reminderDate           DateTime?                      // Date pour envoyer un rappel
+
+  /// Nouveau champ : indication si on répète la tâche après achèvement
+  repeatAfterCompletion  Boolean?    @default(false)
+
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
 
   // Relation avec l'utilisateur qui possède cette tâche.
-  user        User        @relation(fields: [userId], references: [id])
-  userId      Int
+  user                   User        @relation(fields: [userId], references: [id])
+  userId                 Int
 
   // Relation many-to-many avec les tags (implémentée implicitement par Prisma)
-  tags        Tag[]
+  tags                   Tag[]
 
   // Relation vers les commentaires liés à cette tâche
-  comments    Comment[]
+  comments               Comment[]
+
+  // Relation vers la catégorie associée à cette tâche
+  category               Category?   @relation(fields: [categoryId], references: [id])
+  categoryId             Int?
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([createdAt])
+  @@index([userId, completed])
 }
+
 
 /// Enumération pour définir la priorité d'une tâche.
 enum Priority {
@@ -105,6 +123,9 @@ model Comment {
   // Relation vers la tâche commentée.
   todo      Todo     @relation(fields: [todoId], references: [id])
   todoId    Int
+
+  @@index([userId])
+  @@index([todoId])
 }
 
 /// Le modèle Notification permet de gérer les notifications envoyées aux utilisateurs.
@@ -117,4 +138,28 @@ model Notification {
   // Relation vers l'utilisateur destinataire de la notification.
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
+
+  @@index([userId])
+}
+
+
+/// Le modele Category permet de gérer les catégories de tâches.
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  image     String?  // URL de l'image associée à la catégorie
+  color     String?  // Couleur associée à la catégorie
+  icon      String?  // Icône associée à la catégorie
+  description String? // Description de la catégorie
+  isCreatedByUser Boolean @default(false) // Indique si la catégorie a été créée par l'utilisateur
+
+  // Relation vers les tâches associées à cette catégorie.
+  todos     Todo[]
+  // Relation vers l'tilisateur qui a créé cette catégorie.
+  user      User?     @relation(fields: [userId], references: [id])
+  userId    Int?
+
+  @@index([name])
 }
